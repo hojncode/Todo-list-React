@@ -7,8 +7,8 @@ function Todo() {
   ];
 
   const [todo, setTodo] = useState(initTodo);
-  const [inputTodo, setInputTodo] = useState("");
-
+    const [inputTodo, setInputTodo] = useState("");
+   
   const handleInputChange = (e) => {
     // e.preventDefault()
     const { value } = e.target;
@@ -17,7 +17,7 @@ function Todo() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setTodo([...todo, { text: inputTodo, completed: false }]);
+    setTodo([...todo, { text: inputTodo, completed: false ,isEdit: false}]);
     setInputTodo("");
   };
 
@@ -35,6 +35,14 @@ function Todo() {
     console.log(todo)
   };
 
+    const handleEditInput = (e) => {
+        const editedTodo = [...todo]
+        editedTodo[e].isEdit = !editedTodo[e].isEdit
+        setTodo(editedTodo)
+      console.log(todo)
+  }
+
+    
   return (
     <>
       <div>Todo</div>
@@ -51,6 +59,7 @@ function Todo() {
       </div>
       {todo.map((td, _i) => (
         <li key={_i}>
+              {}
           <label>
             <input
               type="checkbox"
@@ -59,9 +68,11 @@ function Todo() {
             />
             <span>{td.text}</span>
           </label>
-          <button data-testid="modify-button">
-            수정
-          </button>
+              {td.isEdit ? <>
+                  <input data-testid="modify-input" />
+                  <button data-testid="submit-button">제출</button>
+                  <button data-testid="cancel-button" onClick={()=> handleEditInput(_i)}>취소</button>
+              </> : <button data-testid="modify-button" onClick={()=> handleEditInput(_i)}>수정</button>}
           <button data-testid="delete-button" onClick={() => handleDelete(_i)}>삭제</button>
         </li>
       ))}
