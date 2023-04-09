@@ -2,8 +2,8 @@ import { useState } from "react";
 
 function Todo() {
   const initTodo = [
-    { text: 1, completed: false },
-    { text: 2, completed: true },
+    { text: 100, completed: false },
+    { text: 200, completed: true },
   ];
 
   const [todo, setTodo] = useState(initTodo);
@@ -28,12 +28,24 @@ function Todo() {
     console.log(todo[e].completed);
   };
 
+  const handleDelete = (e) => {
+    const deletedTodo = [...todo];
+    deletedTodo.splice(e, 1); //해당 TODO를 splice() 메서드를 사용하여 todos 배열에서 제거 (2번째 인자에 1을 추가하여 현재 index만 삭제-여기서는 e로 index를 가져옴)
+    setTodo(deletedTodo);
+    console.log(todo)
+  };
+
   return (
     <>
       <div>Todo</div>
       <div>
         <form onSubmit={handleFormSubmit}>
-          <input data-testid="new-todo-input"  type="text" value={inputTodo} onChange={handleInputChange} />
+          <input
+            data-testid="new-todo-input"
+            type="text"
+            value={inputTodo}
+            onChange={handleInputChange}
+          />
           <button data-testid="new-todo-add-button">TODO추가</button>
         </form>
       </div>
@@ -47,8 +59,10 @@ function Todo() {
             />
             <span>{td.text}</span>
           </label>
-          <button data-testid="modify-button">수정</button>
-          <button data-testid="delete-button">삭제</button>
+          <button data-testid="modify-button">
+            수정
+          </button>
+          <button data-testid="delete-button" onClick={() => handleDelete(_i)}>삭제</button>
         </li>
       ))}
     </>
