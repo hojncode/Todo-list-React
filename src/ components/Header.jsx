@@ -2,23 +2,29 @@ import { useNavigate } from "react-router-dom";
 
 function Header() {
   const navigate = useNavigate();
-  const pageName = ["signup", "signin", "todo"];
+  const pageName = [
+    { id: 1, page: "signup" },
+    { id: 2, page: "signin" },
+    { id: 3, page: "todo" },
+  ];
   const onClickGoto = (e) => {
-    if (e === "signup") {
-      navigate("signup");
-    } else if (e === "signin") {
-      navigate("signin");
-    } else if (e === "todo") {
-      navigate("todo");
+    if (e.page === "signup") {
+      navigate("/signup");
+    } else if (e.page === "signin") {
+      navigate("/signin");
+    } else if (e.page === "todo") {
+      navigate("/todo");
     }
   };
   return (
     <>
       <header className="Header">
         <ul>
-          {pageName.map((id, i) => (
-            <li key={i}>
-              <button onClick={() => onClickGoto(id)}>{pageName[i]}</button>
+          {pageName.map((i, _i) => (
+            <li key={i.id}>
+              <button onClick={() => onClickGoto(i)}>
+                {pageName[_i].page}
+              </button>
             </li>
           ))}
         </ul>
