@@ -12,6 +12,7 @@ import Todo from "./routes/Todo";
 import Root from "./Root";
 import NotFound from "./routes/NotFound";
 import ErrorComponent from "./ components/ErrorComponent";
+import User from "./routes/User";
 
 const router = createBrowserRouter([
   {
@@ -31,8 +32,12 @@ const router = createBrowserRouter([
         path: "todo",
         element: <Todo />,
       },
+      {
+        path: "users/:userIdGet",
+        element: <User />,
+      },
     ],
-    errorElement: <NotFound/>
+    errorElement: <NotFound />,
   },
 ]);
 
