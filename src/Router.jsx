@@ -13,6 +13,7 @@ import Root from "./Root";
 import NotFound from "./routes/NotFound";
 import ErrorComponent from "./ components/ErrorComponent";
 import User from "./routes/User";
+import Followers from "./routes/Followers";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,12 @@ const router = createBrowserRouter([
       {
         path: "users/:userIdGet",
         element: <User />,
+        children: [
+          {
+            path: "followers",
+            element: <Followers />,
+          },
+        ],
       },
     ],
     errorElement: <NotFound />,
