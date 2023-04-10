@@ -10,6 +10,8 @@ import Todo from "./routes/Todo";
 // import Home from "./routes/Home";
 // import Header from "./ components/Header";
 import Root from "./Root";
+import NotFound from "./routes/NotFound";
+import ErrorComponent from "./ components/ErrorComponent";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +21,7 @@ const router = createBrowserRouter([
       {
         path: "" || "signup",
         element: <Signup />,
+        errorElement: <ErrorComponent />,
       },
       {
         path: "signin",
@@ -29,6 +32,7 @@ const router = createBrowserRouter([
         element: <Todo />,
       },
     ],
+    errorElement: <NotFound/>
   },
 ]);
 
