@@ -1,6 +1,28 @@
 .App {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 1000px;
+  align-items: center;
+}
+
+body {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 1000px;
+  align-items: center;
+}
+
+.Header {
+  display: flex;
   flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 50px;
 }
 
 .Form {
