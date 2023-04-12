@@ -56,8 +56,7 @@ function Todo() {
   }, []);
 
   useEffect(() => {
-    console.log("POST투두\n", todo);
-    // console.log(access_token.access_token);
+    // console.log("POST투두\n", lastTodo);
     if (checkToken !== null) {
       const createTodo = async () => {
         try {
@@ -68,15 +67,39 @@ function Todo() {
             },
           });
           // alert("통과post");
-          console.log(response.data);
+          // console.log(response.data);
         } catch (error) {
           // alert("에러");
-          console.error("에러!!post", error.response.data);
+          // console.error("에러!!post", error.response.data);
         }
       };
       createTodo();
     } else return;
-  }, [todo]);
+  }, [lastTodo]);
+
+  useEffect(() => {
+    if (checkToken !== null) {
+      console.log("delete lastTodo.id", `${lastTodo.id}`);
+      console.log("delete 토큰", `${access_token.access_token}`);
+      const deletePost = async () => {
+        try {
+          const response = await axios.delete(`${API}/todos/${lastTodo.id}`, {
+            headers: {
+              Authorization: `Bearer ${access_token.access_token}`,
+              // "Content-Type": "application/json",
+            },
+          });
+          // alert("통과post");
+          console.log("delete 통과!!", response.data);
+        } catch (error) {
+          // alert("에러");
+          console.log("delete lastTodo.id", `${lastTodo.id}`);
+          console.error("delete 에러!!", error.response.data);
+        }
+      };
+      deletePost();
+    } else return;
+  }, [lastTodo]);
 
   const handleInputChange = (e) => {
     const { value } = e.target;
@@ -125,6 +148,13 @@ function Todo() {
     });
     console.log("filteredTodos::", filteredTodos);
     setTodo(filteredTodos);
+    const newTodo = {
+      id: e,
+      todo,
+      isCompleted,
+      userId,
+    };
+    setLastTodo(newTodo);
   };
 
   const handleEditInputChange = (e) => {
