@@ -20,6 +20,11 @@ function Todo() {
   const [userId, setUserId] = useState(0);
   const [idt, setIdt] = useState(0);
   const [lastTodo, setLastTodo] = useState("");
+  const [delTodo, setDelTodo] = useState("");
+  const [openEditWindow, setOpenEditWindow] = useState(false);
+  const [closeEditWindow, setCloseEditWindow] = useState(false);
+
+  const [test, setTest] = useState(false);
 
   const [inputTodo, setInputTodo] = useState("");
   const [editTodo, setEditTodo] = useState([]);
@@ -79,11 +84,11 @@ function Todo() {
 
   useEffect(() => {
     if (checkToken !== null) {
-      console.log("delete lastTodo.id", `${lastTodo.id}`);
+      console.log("delete delTodo.id", `${delTodo.id}`);
       console.log("delete 토큰", `${access_token.access_token}`);
       const deletePost = async () => {
         try {
-          const response = await axios.delete(`${API}/todos/${lastTodo.id}`, {
+          const response = await axios.delete(`${API}/todos/${delTodo.id}`, {
             headers: {
               Authorization: `Bearer ${access_token.access_token}`,
               // "Content-Type": "application/json",
@@ -99,7 +104,7 @@ function Todo() {
       };
       deletePost();
     } else return;
-  }, [lastTodo]);
+  }, [delTodo]);
 
   const handleInputChange = (e) => {
     const { value } = e.target;
@@ -154,14 +159,26 @@ function Todo() {
       isCompleted,
       userId,
     };
-    setLastTodo(newTodo);
+    setDelTodo(newTodo);
   };
 
   const handleEditInputChange = (e) => {
     e.preventDefault();
     const { value } = e.target;
     console.log("value", value);
-    setEditTodoInput(value);
+    console.log("editTodo-input", editTodo);
+    // setEditTodo((prev) => {
+    //   return prev.map((item) => {
+    //     if (item.id === editTodo.id) {
+    //       return { ...item, todo: value };
+    //     }
+    //     return item;
+    //   });
+    // });
+    setEditTodo((prev) => ({
+      ...prev,
+      todo: value,
+    }));
     // setEditTodoInput("");
     // console.log("editTodoInput!", editTodoInput);
   };
@@ -170,14 +187,21 @@ function Todo() {
     // e.preventDefault();
     if (!onEdit) {
       setOnEdit((prev) => !prev);
-      const editedTodo = [...todo];
-      console.log(editedTodo);
-      editedTodo[e].isEdit = !editedTodo[e].isEdit;
-      // editedTodo[e].todo = todo[e].todo;
-      console.log(editedTodo);
-      // setTodo(editedTodo);
-      setEditTodo(editedTodo);
-      setEditTodoInput(editedTodo[e].todo);
+      console.log("e", e);
+      console.log("editedTodo", e);
+      const editedTodo = { ...e, nowEdit: true };
+      console.log("editedTodo", editedTodo);
+      // setOpenEditWindow((prev) => !prev); //  수정 인풋창만 여는 단순 스테이트
+      setEditTodo(editedTodo); //선택된 투두만 들어감. onEditTodo
+      setTodo((prev) => {
+        return prev.map((item) => {
+          if (item.id === editedTodo.id) {
+            return { ...item, nowEdit: !test };
+          }
+          return item;
+        });
+      });
+      console.log("todo", todo);
     } else {
       alert("하나씩 수정해주세요.");
     }
@@ -185,24 +209,35 @@ function Todo() {
 
   const handleCloseEdit = (e) => {
     // e.preventDefault();
-    const editedTodo = [...todo];
-    console.log(editedTodo);
-    editedTodo[e].isEdit = !editedTodo[e].isEdit;
-    editedTodo[e].todo = todo[e]?.todo;
-    console.log(editedTodo);
-    setTodo(editedTodo);
-    setEditTodo(editedTodo);
-    setOnEdit((prev) => !prev);
+
+    if (onEdit) {
+      setOnEdit((prev) => !prev);
+      console.log("취소버튼클릭");
+      const editedTodo = { ...e, nowEdit: true };
+      console.log("editedTodo", editedTodo);
+      // setOpenEditWindow((prev) => !prev); //  수정 인풋창만 여는 단순 스테이트
+      setEditTodo(editedTodo); //선택된 투두만 들어감. onEditTodo
+      setTodo((prev) => {
+        return prev.map((item) => {
+          if (item.id === editedTodo.id) {
+            return { ...item, nowEdit: false };
+          }
+          return item;
+        });
+      });
+    } else {
+      alert("하나씩 수정해주세요.");
+    }
   };
 
   const handleEditTextSubmit = (id) => {
-    const newTodo = [...todo];
-    newTodo[id].todo = editTodoInput;
-    newTodo[id].isEdit = false;
-    setTodo(newTodo);
-    setEditTodoInput("");
-    console.log(todo);
-    setOnEdit((prev) => !prev);
+    // const newTodo = [...todo];
+    // newTodo[id].todo = editTodoInput;
+    // newTodo[id].isEdit = false;
+    // setTodo(newTodo);
+    // setEditTodoInput("");
+    // console.log(todo);
+    // setOnEdit((prev) => !prev);
   };
 
   useEffect(() => {
@@ -246,8 +281,7 @@ function Todo() {
                       checked={td.isCompleted}
                       onChange={() => handleChecked(index)}
                     />
-
-                    {td.isEdit ? (
+                    {td.nowEdit ? (
                       <>
                         <form>
                           <label></label>
@@ -256,7 +290,7 @@ function Todo() {
                             key={index}
                             data-testid="modify-input"
                             type="text"
-                            value={editTodoInput}
+                            value={editTodo.todo}
                             onChange={handleEditInputChange}
                           />
                           <button
@@ -266,20 +300,20 @@ function Todo() {
                           >
                             제출
                           </button>
-                          <button
-                            data-testid="cancel-button"
-                            onClick={() => handleCloseEdit(td.id)}
-                          >
-                            취소
-                          </button>
                         </form>
+                        <button
+                          data-testid="cancel-button"
+                          onClick={() => handleCloseEdit(td)}
+                        >
+                          취소
+                        </button>
                       </>
                     ) : (
                       <>
                         <span>{td.todo} : </span>
                         <button
                           data-testid="modify-button"
-                          onClick={() => handleOpenEdit(td.id)}
+                          onClick={() => handleOpenEdit(td)}
                         >
                           수정
                         </button>
