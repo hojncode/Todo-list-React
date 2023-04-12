@@ -17,8 +17,9 @@ function Todo() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [todo, setTodo] = useState([]);
-  const [userId, setUserId] = useState(todo.userId);
-  const [id, setId] = useState(todo.Id);
+  const [userId, setUserId] = useState(0);
+  const [idt, setIdt] = useState(0);
+  const [lastTodo, setLastTodo] = useState("");
 
   const [inputTodo, setInputTodo] = useState("");
   const [editTodo, setEditTodo] = useState([]);
@@ -43,6 +44,9 @@ function Todo() {
           console.log("response.status", response.status);
           console.log("response.data", response.data);
           setTodo(response.data);
+          setUserId(response.data[0].userId);
+          setIdt(response.data[response.data.length - 1].id);
+          console.log("db에서 받은 투두", response.data);
         } catch (error) {
           console.error(error);
         }
@@ -52,52 +56,51 @@ function Todo() {
   }, []);
 
   useEffect(() => {
-    console.log("POST투두", JSON.stringify(todo));
+    console.log("POST투두\n", todo);
     // console.log(access_token.access_token);
-
     if (checkToken !== null) {
       const createTodo = async () => {
         try {
-          const response = await axios.post(
-            `${API}/todos`,
-            JSON.stringify(todo),
-            {
-              headers: {
-                Authorization: `Bearer ${access_token.access_token}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          // alert("통과");
+          const response = await axios.post(`${API}/todos`, lastTodo, {
+            headers: {
+              Authorization: `Bearer ${access_token.access_token}`,
+              "Content-Type": "application/json",
+            },
+          });
+          // alert("통과post");
           console.log(response.data);
         } catch (error) {
-          console.error("에러!!", error.response.data);
+          // alert("에러");
+          console.error("에러!!post", error.response.data);
         }
       };
       createTodo();
     } else return;
-  }, []);
+  }, [todo]);
 
   const handleInputChange = (e) => {
     const { value } = e.target;
     setInputTodo(value);
   };
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-    setTodo([
-      ...todo,
-      {
-        id: id + todo.length,
-        todo: inputTodo,
-        isCompleted,
-        isEdit,
-        userId,
-      },
-    ]);
+    if (!inputTodo) {
+      return;
+    }
+    const newTodo = {
+      id: idt + 1,
+      todo: inputTodo,
+      isCompleted,
+      userId,
+    };
+    setTodo([...todo, newTodo]);
+    setIdt((prev) => prev + 1);
     setInputTodo("");
     console.log("생성", todo);
-    console.log("생성typeof", JSON.stringify(todo));
+    // console.log("생성typeof", JSON.stringify(todo));
+    setLastTodo(newTodo);
+    console.log("setLastTodo", newTodo);
   };
 
   const handleChecked = (e) => {
