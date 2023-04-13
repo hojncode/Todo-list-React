@@ -1,38 +1,48 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Todo() {
   const initTodo = [
-    { id: 0, todo: "todo1", isCompleted: false, isEdit: false, userId: 1 },
-    { id: 1, todo: "todo2", isCompleted: true, isEdit: false, userId: 1 },
-    { id: 2, todo: "todo3", isCompleted: false, isEdit: false, userId: 1 },
-    { id: 3, todo: "todo4", isCompleted: false, isEdit: false, userId: 1 },
+    { id: 0, todo: "todo1", isCompleted: false, userId: 0 },
+    // { todo: "todo2", isCompleted: true },
+    // { todo: "todo3", isCompleted: false },
+    // { todo: "todo4", isCompleted: false },
   ];
 
   const API = "https://www.pre-onboarding-selection-task.shop";
   const access_token = JSON.parse(localStorage.getItem("JWTtoken"));
   const checkToken = localStorage.getItem("JWTtoken");
-
+  const inputRef = useRef("");
   const [isCompleted, setIsCompleted] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [todo, setTodo] = useState([]);
   const [userId, setUserId] = useState(0);
   const [idt, setIdt] = useState(0);
-  const [lastTodo, setLastTodo] = useState("");
+  const [isChecked, setIsChecked] = useState([]);
+  const [lastTodo, setLastTodo] = useState([]);
   const [delTodo, setDelTodo] = useState("");
-  const [openEditWindow, setOpenEditWindow] = useState(false);
-  const [closeEditWindow, setCloseEditWindow] = useState(false);
+  const [putTodo, setPutTodo] = useState({});
 
   const [test, setTest] = useState(false);
 
   const [inputTodo, setInputTodo] = useState("");
-  const [editTodo, setEditTodo] = useState([]);
-  const [editTodoInput, setEditTodoInput] = useState(editTodo.todo);
+  const [editTodo, setEditTodo] = useState({});
+  // const [editTodoInput, setEditTodoInput] = useState(editTodo.todo);
   const [onEdit, setOnEdit] = useState(false);
   //   const [newEdit, setNewEdit] = useState(todo.todo || ""); //? 이 방법은 사용하지 말것.
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.length === 0) {
+      setLoading(true);
+      setTimeout(() => {
+        navigate("/signin");
+        setLoading(false);
+      }, 1000);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     // console.log(access_token.access_token);
@@ -43,22 +53,26 @@ function Todo() {
           const response = await axios.get(`${API}/todos`, {
             headers: {
               Authorization: `Bearer ${access_token.access_token}`,
-              // "Content-Type": "application/json",
             },
           });
-          console.log("response.status", response.status);
-          console.log("response.data", response.data);
+          // console.log("response.status", response.status);
+          console.log("response", response.data);
           setTodo(response.data);
           setUserId(response.data[0].userId);
           setIdt(response.data[response.data.length - 1].id);
-          console.log("db에서 받은 투두", response.data);
+          // setIsDone(response.data.isCompleted)
+          // console.log("db에서 받은 투두", response.data);
+          // if (response.data[0].userId === 0) {
+          //   return setTodo(lastTodo);
+          // }
+          // return;
         } catch (error) {
           console.error(error);
         }
       };
       fetchTodo();
     } else return;
-  }, []);
+  }, [idt, checkToken, setLastTodo]);
 
   useEffect(() => {
     // console.log("POST투두\n", lastTodo);
@@ -71,6 +85,10 @@ function Todo() {
               "Content-Type": "application/json",
             },
           });
+          console.log(todo.length);
+          if (todo.length < 1) {
+            setTodo([response.data]);
+          } else return;
           // alert("통과post");
           // console.log(response.data);
         } catch (error) {
@@ -84,8 +102,8 @@ function Todo() {
 
   useEffect(() => {
     if (checkToken !== null) {
-      console.log("delete delTodo.id", `${delTodo.id}`);
-      console.log("delete 토큰", `${access_token.access_token}`);
+      // console.log("delete delTodo.id", `${delTodo.id}`);
+      // console.log("delete 토큰", `${access_token.access_token}`);
       const deletePost = async () => {
         try {
           const response = await axios.delete(`${API}/todos/${delTodo.id}`, {
@@ -106,6 +124,46 @@ function Todo() {
     } else return;
   }, [delTodo]);
 
+  useEffect(() => {
+    if (checkToken !== null) {
+      const updatePost = async () => {
+        // console.log("내가찾는곳", editTodo.todo);
+        try {
+          console.log("putTodo.id", putTodo.id);
+          console.log("내가찾는곳1-editTodo.todo", editTodo.todo);
+          console.log("내가찾는곳2-putTodo.isCompleted", putTodo.isCompleted);
+          const response = await axios.put(
+            `${API}/todos/${putTodo.id}`,
+            {
+              todo: editTodo.todo,
+              isCompleted: putTodo.isCompleted,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${access_token.access_token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          // alert("통과post");
+          console.log("updatePost 통과!!", response.data);
+          // setTodo((prev) => {
+          //   return prev.map((item) => {
+          //     if (item.id === response.data.id) {
+          //       return { ...item, item: response.data };
+          //     }
+          //     return item;
+          //   });
+          // });
+          // alert("updatePost 통과todo!!", todo);
+        } catch (error) {
+          console.error("Put에러", error.response.data);
+        }
+      };
+      updatePost();
+    } else return;
+  }, [putTodo.isCompleted, checkToken, editTodo.todo, putTodo.id, setTodo]);
+
   const handleInputChange = (e) => {
     const { value } = e.target;
     setInputTodo(value);
@@ -122,10 +180,10 @@ function Todo() {
       isCompleted,
       userId,
     };
-    setTodo([...todo, newTodo]);
+    // setTodo([...todo, newTodo]);
     setIdt((prev) => prev + 1);
     setInputTodo("");
-    console.log("생성", todo);
+    // console.log("생성", todo);
     // console.log("생성typeof", JSON.stringify(todo));
     setLastTodo(newTodo);
     console.log("setLastTodo", newTodo);
@@ -134,7 +192,34 @@ function Todo() {
   const handleChecked = (e) => {
     const checkedTodo = [...todo];
     checkedTodo[e].isCompleted = !checkedTodo[e].isCompleted;
-    setTodo(checkedTodo);
+    console.log("checkedTodo", checkedTodo);
+    setIsChecked(checkedTodo[e]);
+    const arraydump = [...todo];
+    const doneChecked = () =>
+      arraydump.map((item) => {
+        if (item.id === checkedTodo.id) {
+          return { ...item, isCompleted: !isCompleted };
+        }
+        return item;
+      });
+    setTodo(doneChecked());
+    console.log("isChecked", isChecked);
+    console.log("setTodo-체크버튼 클릭시", todo);
+  };
+
+  const handleSubmitChecked = (e) => {
+    // setTodo(isChecked);
+    console.log("handleSubmitChecked버튼", todo);
+    console.log("isChecked", isChecked);
+    // setEditTodo((prev) => prev);
+    const editedTodo = e;
+    console.log("editedTodo", editedTodo);
+    setEditTodo(editedTodo); //선택된 투두만 들어감. onEditTodo
+    const newTodo = {
+      id: editedTodo.id,
+      isCompleted: !isCompleted,
+    };
+    setPutTodo(newTodo);
   };
 
   const handleDelete = (e) => {
@@ -162,33 +247,11 @@ function Todo() {
     setDelTodo(newTodo);
   };
 
-  const handleEditInputChange = (e) => {
-    e.preventDefault();
-    const { value } = e.target;
-    console.log("value", value);
-    console.log("editTodo-input", editTodo);
-    // setEditTodo((prev) => {
-    //   return prev.map((item) => {
-    //     if (item.id === editTodo.id) {
-    //       return { ...item, todo: value };
-    //     }
-    //     return item;
-    //   });
-    // });
-    setEditTodo((prev) => ({
-      ...prev,
-      todo: value,
-    }));
-    // setEditTodoInput("");
-    // console.log("editTodoInput!", editTodoInput);
-  };
-
   const handleOpenEdit = (e) => {
     // e.preventDefault();
     if (!onEdit) {
       setOnEdit((prev) => !prev);
       console.log("e", e);
-      console.log("editedTodo", e);
       const editedTodo = { ...e, nowEdit: true };
       console.log("editedTodo", editedTodo);
       // setOpenEditWindow((prev) => !prev); //  수정 인풋창만 여는 단순 스테이트
@@ -201,6 +264,13 @@ function Todo() {
           return item;
         });
       });
+      const newTodo = {
+        id: e.id,
+        todo,
+        isCompleted,
+        userId,
+      };
+      setPutTodo(newTodo);
       console.log("todo", todo);
     } else {
       alert("하나씩 수정해주세요.");
@@ -209,14 +279,13 @@ function Todo() {
 
   const handleCloseEdit = (e) => {
     // e.preventDefault();
-
     if (onEdit) {
       setOnEdit((prev) => !prev);
       console.log("취소버튼클릭");
       const editedTodo = { ...e, nowEdit: true };
       console.log("editedTodo", editedTodo);
       // setOpenEditWindow((prev) => !prev); //  수정 인풋창만 여는 단순 스테이트
-      setEditTodo(editedTodo); //선택된 투두만 들어감. onEditTodo
+      // setEditTodo(editedTodo); //선택된 투두만 들어감. onEditTodo
       setTodo((prev) => {
         return prev.map((item) => {
           if (item.id === editedTodo.id) {
@@ -230,25 +299,45 @@ function Todo() {
     }
   };
 
-  const handleEditTextSubmit = (id) => {
-    // const newTodo = [...todo];
-    // newTodo[id].todo = editTodoInput;
-    // newTodo[id].isEdit = false;
-    // setTodo(newTodo);
+  const handleEditInputChange = (e) => {
+    e.preventDefault();
+    const { value } = e.target;
+    console.log("value", value);
+    console.log("editTodo-input", editTodo);
+    setEditTodo((prev) => ({
+      ...prev,
+      todo: value,
+    }));
     // setEditTodoInput("");
-    // console.log(todo);
-    // setOnEdit((prev) => !prev);
+    console.log("setEditTodo!", editTodo);
   };
 
-  useEffect(() => {
-    if (checkToken === null) {
-      setLoading(true);
-      setTimeout(() => {
-        navigate("/signin");
-        setLoading(false);
-      }, 1000);
-    }
-  }, []);
+  const handleEditTextSubmit = (e) => {
+    e.preventDefault();
+    // alert("왜 알럿이 안되", e);
+    const checkedTodo = [...todo];
+    console.log("checkedTodo", checkedTodo);
+    setIsChecked(checkedTodo[e.id]);
+    const arraydump2 = [...todo];
+    const changeTodoText = () => {
+      return arraydump2.map((item) => {
+        if (item.id === editTodo.id) {
+          return { ...item, todo: editTodo.todo, nowEdit: false };
+        }
+        return item;
+      });
+    };
+    setOnEdit((prev) => !prev);
+    setTodo(changeTodoText());
+    // alert("isChecked", isChecked);
+    // setEditTodo({});
+    const newTodo = {
+      id: e.id,
+      isCompleted,
+    };
+    setPutTodo(newTodo);
+    console.log("newTodos", todo);
+  };
 
   return (
     <>
@@ -275,12 +364,17 @@ function Todo() {
               {todo.map((td, index) => {
                 return (
                   <li key={index}>
-                    <label></label>
-                    <input
-                      type="checkbox"
-                      checked={td.isCompleted}
-                      onChange={() => handleChecked(index)}
-                    />
+                    <form onSubmit={() => handleSubmitChecked(td)}>
+                      <label></label>
+                      <input
+                        type="checkbox"
+                        checked={td.isCompleted}
+                        onChange={() => {
+                          handleChecked(index);
+                          handleSubmitChecked(td);
+                        }}
+                      />
+                    </form>
                     {td.nowEdit ? (
                       <>
                         <form>
@@ -290,12 +384,13 @@ function Todo() {
                             key={index}
                             data-testid="modify-input"
                             type="text"
+                            ref={inputRef}
                             value={editTodo.todo}
                             onChange={handleEditInputChange}
                           />
                           <button
                             type="sumbit"
-                            onClick={() => handleEditTextSubmit(index)}
+                            onClick={(e) => handleEditTextSubmit(e)}
                             data-testid="submit-button"
                           >
                             제출
