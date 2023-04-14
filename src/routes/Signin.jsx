@@ -11,6 +11,9 @@ function Signin() {
   const access_token = localStorage.getItem("JWTtoken");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(
+    "이메일 주소와 패스워드(8자리 이상)를 입력해 주세요."
+  );
 
   const handleEmail = (e) => {
     e.preventDefault();
@@ -21,6 +24,10 @@ function Signin() {
   const handlePW = (e) => {
     e.preventDefault();
     const { value } = e.target;
+    if (inputEmail.includes("@") && inputPw.length >= 7) {
+      setDisable(false);
+      setErrorMsg("");
+    }
     setInputPw(value);
   };
 
@@ -38,8 +45,10 @@ function Signin() {
       // alert("통과", response);
       console.log(response.data);
       localStorage.setItem("JWTtoken", JSON.stringify(response.data));
+      setErrorMsg("통과")
     } catch (error) {
       console.error(error);
+      setErrorMsg("입력한 정보가 일치 하지 않습니다.");
     }
   };
 
@@ -51,7 +60,7 @@ function Signin() {
         setLoading(false);
       }, 1000);
     }
-  }, [access_token,navigate]);
+  }, [access_token, navigate]);
 
   return (
     <div className="App">
@@ -60,7 +69,7 @@ function Signin() {
       ) : (
         <>
           Signin
-          <form className="Form" onChange={handleValid}>
+          <form className="Form" onSubmit={handleValid}>
             <input
               data-testid="email-input"
               placeholder="email"
@@ -87,6 +96,7 @@ function Signin() {
             >
               로그인
             </button>
+            <span>{errorMsg}</span>
           </form>
         </>
       )}
