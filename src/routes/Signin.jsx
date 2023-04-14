@@ -51,7 +51,7 @@ function Signin() {
         setLoading(false);
       }, 1000);
     }
-  }, []);
+  }, [access_token,navigate]);
 
   return (
     <div className="App">
