@@ -101,7 +101,7 @@ function Todo() {
             `${API}/todos/${putTodo.id}`,
             {
               todo: editTodo.todo,
-              isCompleted: putTodo.isCompleted,
+              isCompleted: editTodo.isCompleted,
             },
             {
               headers: {
