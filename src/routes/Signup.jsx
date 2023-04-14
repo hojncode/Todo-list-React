@@ -13,7 +13,7 @@ function Signup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(
-    "이메일 주소와 패스워드를 입력해 주세요.(가입 성공시 로그인 페이지로 이동합니다.)"
+    "이메일 주소와 패스워드(8자리 이상)를 입력해 주세요."
   );
 
   const handleEmail = (e) => {
@@ -25,40 +25,28 @@ function Signup() {
   const handlePW = (e) => {
     e.preventDefault();
     const { value } = e.target;
+    if (inputEmail.includes("@") && inputPw.length >= 7) {
+      setDisable(false);
+      setErrorMsg("");
+    }
     setInputPw(value);
   };
 
   const handleValidSumbit = async (e) => {
     e.preventDefault();
-    if (inputEmail.includes("@") && inputPw.length >= 7) {
-      setDisable(false);
-    }
     try {
       const response = await axios.post(`${API}/auth/signup`, userdata, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-      alert("통과");
+      alert("입력한 정보로 가입 되었습니다.(로그인 페이지로 이동합니다)");
+      navigate("/signin");
       console.log(response.status);
       console.log(response.data.message);
     } catch (error) {
       console.error(error.response.data.message);
-      if (error.response.data.message.includes("이미")) {
-        setErrorMsg(error.response.data.message);
-      } else if (
-        error.response.data.message.includes("email must contain a @ string")
-      ) {
-        setErrorMsg("이메일 주소와 패스워드를 입력해 주세요.");
-      } else if (
-        error.response.data.message.includes(
-          "password must be longer than or equal to 8 characters"
-        ) ||
-        inputEmail.includes(".com" || ".net")
-      ) {
-        setErrorMsg("패스워드는 8자리 이상입니다.");
-      }
-    }
+  }
   };
 
   useEffect(() => {
@@ -79,7 +67,7 @@ function Signup() {
         <>
           <span>Signup</span>
 
-          <form className="Form" onChange={handleValidSumbit}>
+          <form className="Form" onSubmit={handleValidSumbit}>
             <input
               data-testid="email-input"
               placeholder="email"

@@ -295,35 +295,37 @@ function Todo() {
                 return (
                   <li key={index}>
                     <form onSubmit={() => handleSubmitChecked(td)}>
-                      <label></label>
-                      <input
-                        type="checkbox"
-                        checked={td.isCompleted}
-                        onChange={() => {
-                          handleChecked(index);
-                          handleSubmitChecked(td);
-                        }}
-                      />
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={td.isCompleted}
+                          onChange={() => {
+                            handleChecked(index);
+                            handleSubmitChecked(td);
+                          }}
+                        />
+                      </label>
                     </form>
                     {td.nowEdit ? (
                       <>
                         <form>
-                          <label></label>
-                          <input
-                            className="edit-input"
-                            key={index}
-                            data-testid="modify-input"
-                            type="text"
-                            value={editTodo.todo}
-                            onChange={handleEditInputChange}
-                          />
-                          <button
-                            type="sumbit"
-                            onClick={(e) => handleEditTextSubmit(e)}
-                            data-testid="submit-button"
-                          >
-                            제출
-                          </button>
+                          <label>
+                            <input
+                              className="edit-input"
+                              key={index}
+                              data-testid="modify-input"
+                              type="text"
+                              value={editTodo.todo}
+                              onChange={handleEditInputChange}
+                            />
+                            <button
+                              type="sumbit"
+                              onClick={(e) => handleEditTextSubmit(e)}
+                              data-testid="submit-button"
+                            >
+                              제출
+                            </button>
+                          </label>
                         </form>
                         <button
                           data-testid="cancel-button"
