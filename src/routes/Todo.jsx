@@ -141,29 +141,33 @@ function Todo() {
 
   //todo 체크
   const handleChecked = (e) => {
-    const checkedTodo = [...todo];
-    checkedTodo[e].isCompleted = !checkedTodo[e].isCompleted;
-    setIsChecked(checkedTodo[e]);
-    const arraydump = [...todo];
-    const doneChecked = () =>
-      arraydump.map((item) => {
-        if (item.id === checkedTodo.id) {
-          return { ...item, isCompleted: !isCompleted };
-        }
-        return item;
-      });
-    setTodo(doneChecked());
+    if (!onEdit) {
+      const checkedTodo = [...todo];
+      checkedTodo[e].isCompleted = !checkedTodo[e].isCompleted;
+      setIsChecked(checkedTodo[e]);
+      const arraydump = [...todo];
+      const doneChecked = () =>
+        arraydump.map((item) => {
+          if (item.id === checkedTodo.id) {
+            return { ...item, isCompleted: !isCompleted };
+          }
+          return item;
+        });
+      setTodo(doneChecked());
+    } else return alert("todo 수정을 `제출` 또는 `취소` 해야합니다.");
   };
 
   //todo 체크 정보 서버로 보내기
   const handleSubmitChecked = (e) => {
-    const editedTodo = e;
-    setEditTodo(editedTodo); //선택된 투두만 들어감. onEditTodo
-    const newTodo = {
-      id: editedTodo.id,
-      isCompleted: !isCompleted,
-    };
-    setPutTodo(newTodo);
+    if (!onEdit) {
+      const editedTodo = e;
+      setEditTodo(editedTodo); //선택된 투두만 들어감. onEditTodo
+      const newTodo = {
+        id: editedTodo.id,
+        isCompleted: !isCompleted,
+      };
+      setPutTodo(newTodo);
+    } else return;
   };
 
   //todo 삭제
