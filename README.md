@@ -22,4 +22,4 @@
 
 ### `데모 영상`
 
-<img src="https://gifmaker.me/video-to-gif/viewimage/20230413-19-41bziM8AEFKyIljC-cmkQKc-HNET"/>
+<img src="https://user-images.githubusercontent.com/66374067/231963452-a1ecb971-a98a-4454-b02c-9753126af5eb.gif"/>
