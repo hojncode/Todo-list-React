@@ -22,4 +22,4 @@
 
 ### `데모 영상`
 
-<img href="https://user-images.githubusercontent.com/66374067/231955731-9e69a211-e151-4b05-b4bf-e57292cd3a18.gif"/>
+<img src="https://user-images.githubusercontent.com/66374067/231955731-9e69a211-e151-4b05-b4bf-e57292cd3a18.gif"/>
